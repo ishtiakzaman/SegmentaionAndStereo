@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 {
     if(argc < 3 || argc > 4)
     {
-        cerr << "usage: " << argv[0] << " image_file seeds_file [optional:beta(default:0.1)]" << endl;
+        cerr << "usage: " << argv[0] << " image_file seeds_file [optional:beta(default:25.0)]" << endl;
         return 1;
     }
 
