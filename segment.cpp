@@ -141,9 +141,8 @@ CImg<int> mrf_segment(const CImg<double> &img, const CImg<double> &D, const doub
     CImg<double> message(img.width(), img.height(), n_labels, n_neighbors);
     CImg<double> prev_message(img.width(), img.height(), n_labels, n_neighbors, 0.0);
 
-    int max_iteration = max(img.width(), img.height());
-    max_iteration = 5;
-    for (int t = 0; t < max_iteration; ++t)
+    int n_iteration = img.width() * img.height() * 5;
+    while (n_iteration > 0)
     {
         for (int x = 0; x < img.width(); x++)
         {
@@ -157,14 +156,15 @@ CImg<int> mrf_segment(const CImg<double> &img, const CImg<double> &D, const doub
             			double min_energy = INF;
             			for (int k = 0; k < n_labels; ++k)
             			{
-            				double energy = D(x,y,k) + alpha * abs(k-l) +
+            				double energy = D(x,y,k) + alpha * (k==l?0:1) +
             									get_neighbors_messages_into_except(x,y,k,direction,prev_message);
             				if (energy < min_energy)
             					min_energy = energy;
             			}
             			message(x,y,l,direction) = min_energy;
-            		}
-            	}            	
+            		}                    
+            	}    
+                --n_iteration;        	
             }
         }
 
