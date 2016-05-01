@@ -9,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include <ctime>
 #include <math.h>
 #include <CImg.h>
 #include <assert.h>
@@ -20,17 +19,6 @@ using namespace std;
 #define INF INFINITY
 
 double sqr(double a) { return a*a; }
-
-const string currentDateTime() 
-{
-    time_t now = time(0);
-    struct tm tstruct;
-    char buf[80];
-    tstruct = *localtime(&now);        
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-
-    return buf;
-}
 
 CImg<double> naive_stereo(const CImg<double> &input1, const CImg<double> &input2,
                                     CImg<double> &D, int window_size, int max_disp)
@@ -184,7 +172,7 @@ int main(int argc, char *argv[])
     string input_filename1 = argv[1], input_filename2 = argv[2];
     string gt_filename;
     if(argc == 4)
-    gt_filename = argv[3];
+        gt_filename = argv[3];
 
     // read in images and gt
     CImg<double> image1(input_filename1.c_str());
@@ -198,39 +186,28 @@ int main(int argc, char *argv[])
 
     if(gt_filename != "")
     {
-        gt = CImg<double>(gt_filename.c_str());
-
-        // gt maps are scaled by a factor of 3, undo this...
-        /*
+        gt = CImg<double>(gt_filename.c_str());        
+        
         for(int i=0; i<gt.height(); i++)
-            for(int j=0; j<gt.width(); j++)
-                gt(j,i) = gt(j,i) / 3.0;
-        */
+           for(int j=0; j<gt.width(); j++)
+                gt(j,i) = gt(j,i) / (255/max_disp);
+        
     }
-
-    
-    //image1.resize(size, size, 1, 3);
-    //image2.resize(size, size, 1, 3);
-    //gt.resize(size, size, 1, 3);
-    cout << currentDateTime() << endl;
-
 
     CImg<double> D(image1.width(), image1.height(), 256);
 
     // do naive stereo (matching only, no MRF)
     cout << "Computing naive disparity (might take a minute)" << endl;
     CImg<double> naive_disp = naive_stereo(image1, image2, D, 5, max_disp);
-    //naive_disp.get_normalize(0,255).save((input_filename1 + "-disp_naive.png").c_str());
-    naive_disp.get_normalize(0,255).save("disp_naive.png");
+    naive_disp.get_normalize(0,255).save((input_filename1 + "-disp_naive.png").c_str());
+    
     cout << "Naive disparity image saved" << endl;
 
-    cout << currentDateTime() << endl;
-
     // do stereo using mrf    
-    cout << "Computing MRF disparity (might take around 5-6 minutes)" << endl;
+    cout << "Computing MRF disparity (might take a couple of minutes)" << endl;
     CImg<double> mrf_disp = mrf_stereo(image1, D, alpha, max_disp);
-    //mrf_disp.get_normalize(0,255).save((input_filename1 + "-disp_mrf.png").c_str());
-    mrf_disp.get_normalize(0,255).save("disp_mrf.png");   
+    mrf_disp.get_normalize(0,255).save((input_filename1 + "-disp_mrf.png").c_str());
+    
     cout << "MRF disparity image saved" << endl; 
 
     // Measure error with respect to ground truth, if we have it...
@@ -240,7 +217,6 @@ int main(int argc, char *argv[])
         cout << "MRF stereo technique mean error = " << (mrf_disp-gt).sqr().sum()/gt.height()/gt.width() << endl;
 
     }
-    cout << currentDateTime() << endl;
 
     return 0;
 }

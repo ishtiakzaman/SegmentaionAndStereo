@@ -23,7 +23,7 @@ CImg<double> create_gaussian_filter(int size, double sigma)
     
     for(int i = -size/2; i <= size/2; i++)    
         for(int j = -size/2; j <= size/2; j++)                  
-            filter(i+size/2,j+size/2) = 1.0/(2.0*cimg::PI*sigma*sigma)*exp(-1.0*(i*i+j*j)/(2*sigma*sigma));        
+            filter(i+size/2,j+size/2) = 1.0/(2.0*cimg::PI*sigma*sigma)*exp(-1.0*(i*i+j*j)/(2*sigma*sigma));
 
     return filter;
 }
@@ -44,7 +44,7 @@ void convolve_pixel(CImg<double> &image, CImg<double> &filter, int x, int y)
     }
 }
 
-CImg<double> generate_stereo(CImg<double> &original_image, CImg<double> &disp_image, double disp_rate=0.1)
+CImg<double> generate_stereo(string image_name, CImg<double> &original_image, CImg<double> &disp_image, double disp_rate)
 {
     if (original_image.width() != disp_image.width() || original_image.height() != disp_image.height())
     {
@@ -86,7 +86,7 @@ CImg<double> generate_stereo(CImg<double> &original_image, CImg<double> &disp_im
         }
     }
 
-    transformed_image.save("transformed.png");
+    transformed_image.save((image_name+"-transformed.png").c_str());
 
     list<pair<int,int> > empty_pixels;
     for (int i = 0; i < transformed_image.width(); ++i)            
@@ -100,7 +100,7 @@ CImg<double> generate_stereo(CImg<double> &original_image, CImg<double> &disp_im
         for (list<pair<int,int> >::iterator it = empty_pixels.begin(); it != empty_pixels.end(); ++it)
             convolve_pixel(transformed_image, filter, (*it).first, (*it).second);               
 
-    transformed_image.save("transformed_filtered.png");
+    transformed_image.save((image_name+"-transformed_filtered.png").c_str());
 
     for (int i = 0; i < stereo_image.width(); ++i)    
     {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
         iss >> disp_rate;
     }
 
-    CImg<double> stereo_image = generate_stereo(original_image, disp_image, disp_rate);
+    CImg<double> stereo_image = generate_stereo(argv[1], original_image, disp_image, disp_rate);
     stereo_image.save(strcat(argv[1], "-stereogram.png"));
 
     return 0;

@@ -223,8 +223,8 @@ void output_segmentation(const CImg<double> &img, CImg<int> &labels, const strin
 
 
     labels.save((fname + "_disparity.png").c_str());
-    //img_fg.get_normalize(0,255).save((fname + "_fg.png").c_str());
-    //img_bg.get_normalize(0,255).save((fname + "_bg.png").c_str());
+    img_fg.get_normalize(0,255).save((fname + "_fg.png").c_str());
+    img_bg.get_normalize(0,255).save((fname + "_bg.png").c_str());
 }
 
 int main(int argc, char *argv[])
@@ -272,13 +272,13 @@ int main(int argc, char *argv[])
 
     CImg<double> D(image_rgb.width(), image_rgb.height(), 2);
     CImg<int> labels = naive_segment(image_rgb, fg_pixels, bg_pixels, beta, D);
-    //output_segmentation(image_rgb, labels, input_filename1 + "-naive_segment_result");
-    output_segmentation(image_rgb, labels, "segment.png");
+    output_segmentation(image_rgb, labels, input_filename1 + "-naive_segment_result");
+    //output_segmentation(image_rgb, labels, "segment.png");
 
     // do mrf segmentation
     labels = mrf_segment(image_rgb, D, alpha);    
-    //output_segmentation(image_rgb, labels, input_filename1 + "-mrf_segment_result");
-    output_segmentation(image_rgb, labels, "segment2.png");
+    output_segmentation(image_rgb, labels, input_filename1 + "-mrf_segment_result");
+    //output_segmentation(image_rgb, labels, "segment2.png");
 
     return 0;
 }
