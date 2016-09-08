@@ -1,4 +1,3 @@
-**CSCI-B657: Computer Vision**<br/>
-**HW4: Stereo**
+#Generate Stereo by Segmentation
 
 See **Report.pdf** for details.
